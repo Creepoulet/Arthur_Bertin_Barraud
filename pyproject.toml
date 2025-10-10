@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=42.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+authors = [
+    { name = "Your Name", email = "your.email@univ-amu.fr"},
+]
+name = "boid"
+description = "A boid implementation"
+version = "1.0.0"
+license = "MIT"
+license-files = [ "LICENSE" ]
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">= 3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "numpy",
+    "pygame",
+]
+
+[project.scripts]
+"run-boid" = "boid:run"
+"run-test" = "boid:run_test"
+
+[tool.black]
+line-length = 79
+
+[tool.bumpver]
+current_version = "1.0.0"
+version_pattern = "MAJOR.MINOR.PATCH[-TAG]"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"',
+    'version = "{version}"',
+]
+"src/boid/__init__.py" = [
+    '__version__ = "{version}"',
+]
