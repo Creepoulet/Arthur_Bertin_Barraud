@@ -25,6 +25,12 @@ class Flock:
 
         running = True
 
+        pygame.font.init()
+        font = pygame.font.SysFont("calibri", 30)
+        font_eaten = pygame.font.SysFont("calibri", 10, bold=True)
+
+        eat_message = ["DIVINE !", "SWEET !", "TASTY !", "DELICIOUS !", "YUMMY !", "SCRUMPTIOUS !", "SUPERB !"]
+
         while running:
             self.move_flock(n=step)
 
@@ -46,9 +52,10 @@ class Flock:
                     current_posp[1] = current_posp[1] % height
                 directionp = (velocityp) / np.linalg.norm(velocityp)
 
+                # manage cooldown after eating (predator will be slower for a while, cf one_step_move_predator)
                 if p.eaten:
                     p.cooldown += 1
-                    if p.cooldown >= 180:
+                    if p.cooldown >= 180: # cooldown of 3 seconds at 60 fps
                         p.eaten = False
                         p.cooldown = 0
 
@@ -66,6 +73,8 @@ class Flock:
                     current_posp[0] - 3 * directionp[1],
                     current_posp[1] + 3 * directionp[0],
                 )
+
+                # Color the predator differently if it has eaten recently
                 if p.eaten:
                     color_pred = (0, 255, 0)
                 else:
@@ -81,6 +90,9 @@ class Flock:
                     if np.linalg.norm(current_pos - p.position) < 10 and not p.eaten:
                         self.boid_list.remove(b)
                         p.eaten = True
+                        self.score += 1
+                        eat_text = font.render(eat_message[np.random.randint(0, 7)], True, "yellow")
+                        self.eat_texts.append((eat_text, current_pos.copy(), pygame.time.get_ticks(), 1500))
                         break
 
                 # make them go from one side of the screen to the other
@@ -102,8 +114,28 @@ class Flock:
                 )
                 pygame.draw.polygon(screen, white, [A, B, C])
 
+            current_time = pygame.time.get_ticks()
+            texts_to_remove = []
 
-            # Shuffling the speed
+            for text_surface, pos, start_time, duration in self.eat_texts:
+                # Compute opacity based on elapsed time
+                elapsed = current_time - start_time
+                if elapsed < duration:
+                    # Decrease alpha over time
+                    alpha = max(0, 255 - (elapsed / duration) * 255)
+                    text_surface.set_alpha(alpha)  # Applique l'opacité
+                    screen.blit(text_surface, pos)
+                else:
+                    texts_to_remove.append((text_surface, pos, start_time, duration))
+
+            # Delete texts that have finished their duration
+            for text in texts_to_remove:
+                self.eat_texts.remove(text)
+            
+            # Display number of boids that have been eaten
+            score_text = font.render(f"Birds predated: {self.score}", True, white)
+            screen.blit(score_text, (10, 10))
+
             # Update the display
             pygame.display.flip()
 
@@ -146,7 +178,7 @@ class Flock:
         self.neighb_positions_pred = {i: positions_b[n] for i, n in enumerate(neighbs_pred)}   
 
         # positions of predators around predators for repulsion
-        neighbs_p = self.find_neighbourhood(positions_p, r=self.r_repulsion*2) # find neighbours for predators at range of repulsion
+        neighbs_p = self.find_neighbourhood(positions_p, r=self.r_repulsion*4) # find neighbours for predators at range of repulsion
         self.neighb_positions_pred_pred = {i: positions_p[n] for i, n in enumerate(neighbs_p)} 
         
         # positions of predators around boids for repulsion
@@ -189,18 +221,25 @@ class Flock:
                 C = p.coherence(b_index, self.neighb_positions_pred[b_index], p.position, self.c_c*2)
             else:
                 C = np.zeros(2)
-            S = p.separation(b_index, self.neighb_positions_pred_pred[b_index], p.position, self.c_s)
+            # compute separation from other predators so that they don't stack and stay less in the same place
+            # S = p.separation(b_index, self.neighb_positions_pred_pred[b_index], p.position, self.c_s)
+            if b_index in self.neighb_positions_pred_pred and len(self.neighb_positions_pred_pred[b_index]) > 0:
+                S = p.separation(b_index, self.neighb_positions_pred_pred[b_index], p.position, self.c_c*2)
+            else:
+                S = np.zeros(2)
             new_velocity.append(p.velocity + self.dt * (C + S))
         
         for p, new_v in zip(self.predator_list, new_velocity):
+
             # limit the speed of the predator depending on whether it has eaten or not
             if p.eaten==True:
                 max_speed = 1
             else:
                 max_speed = 8
-            # limit the acceleration of the predator
-            # if np.linalg.norm(new_v - p.velocity) > 1:
-            #     new_v = p.velocity + (new_v - p.velocity) / np.linalg.norm(new_v - p.velocity) * 2
+
+            #limit the acceleration of the predator
+            if np.linalg.norm(new_v - p.velocity) > 1:
+                new_v = p.velocity + (new_v - p.velocity) / np.linalg.norm(new_v - p.velocity) * 2
 
             # limit the speed of the predator
             if np.linalg.norm(new_v) > max_speed:
@@ -208,7 +247,7 @@ class Flock:
             else:
                 p.velocity = new_v
 
-    def __init__(self, nb_boids=100, nb_predators=2, c_c=.001, c_s=.01, c_s_pred=5, c_a=.01, r=100, r_repulsion=20, r_pred = 200, dt = 1.5, seed=0):
+    def __init__(self, nb_boids=100, nb_predators=2, c_c=.001, c_s=.01, c_s_pred=5, c_a=.01, r=100, r_repulsion=20, r_pred = 200, score=0, dt = 1.5, seed=0):
         
         np.random.seed(seed)
         
@@ -231,5 +270,7 @@ class Flock:
         self.r = r
         self.r_repulsion = r_repulsion
         self.r_pred = r_pred
+        self.score = score
+        self.eat_texts = []
         self.dt = dt
         print("In Flock")
