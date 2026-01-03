@@ -2,7 +2,6 @@ from boid import Flock, Bird, Predator
 import pygame
 import numpy as np
 
-
 def setup_pygame(
     width: int = 600, height: int = 600, title: str = "Moving Triangles"
 ) -> pygame.Surface:
@@ -26,9 +25,9 @@ def display_triangles(
 
 
 def run_test():
-    bird = Bird()
-    predator = Predator()
-    flock = Flock()
+    # bird = Bird()
+    # predator = Predator()
+    # flock = Flock()
     print("Hello World!")
 
     # Define colors
@@ -64,6 +63,10 @@ def run_test():
 
         # Updating the position
         current_pos = new_pos
+        if new_pos[0] < 0 or new_pos[0] > width:
+            speed[0] = -speed[0]
+        if new_pos[1] < 0 or new_pos[1] > height:
+            speed[1] = -speed[1]
 
         # Shuffling the speed
         angle = np.random.random() * np.pi / 6 - np.pi / 12
@@ -80,5 +83,6 @@ def run_test():
 
 
 def run():
-    # Your code here
-    ...
+    flock = Flock(100, 2)
+    
+    flock.show_flock()
