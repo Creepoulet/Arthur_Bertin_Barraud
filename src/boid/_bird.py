@@ -14,10 +14,10 @@ class Bird(Flyer):
             return np.zeros(2)
 
         diff = b_position - predator_positions
-        dist = np.linalg.norm(diff, axis=1)
+        dist = np.linalg.norm(diff, axis=1) 
         dist[dist == 0] = 1e-6
 
-        return c_s * np.sum(diff / dist[:, None]**2, axis=0)
+        return c_s * np.sum(diff / dist[:, None]**2, axis=0) # 
 
     def alignment(self, b_index, neighb_velocities, b_velocity, c_a):
         return c_a * (np.mean(neighb_velocities, axis=0) - b_velocity)
