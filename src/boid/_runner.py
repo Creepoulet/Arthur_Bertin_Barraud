@@ -83,6 +83,6 @@ def run_test():
 
 
 def run():
-    flock = Flock(100, 2)
+    flock = Flock(200, 2)
     
     flock.show_flock()
