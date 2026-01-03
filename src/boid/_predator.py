@@ -12,7 +12,8 @@ class Predator(Flyer):
     def alignment(self, b_index, neighb_velocities, b_velocity, c_a):
         return c_a * (np.mean(neighb_velocities, axis=0) - b_velocity)
 
-    def __init__(self, p, v, dt=0.1, eaten = False) -> None:
+    def __init__(self, p, v, dt=0.1, eaten=False, cooldown=0) -> None:
         super().__init__(p, v, dt=0.1)
         self.eaten = eaten
+        self.cooldown = cooldown
         print("In Predator")

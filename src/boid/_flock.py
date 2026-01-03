@@ -24,7 +24,6 @@ class Flock:
         scale = 10
 
         running = True
-        time = 0
 
         while running:
             self.move_flock(n=step)
@@ -48,14 +47,13 @@ class Flock:
                 directionp = (velocityp) / np.linalg.norm(velocityp)
 
                 if p.eaten:
-                    time += 1
-
-                if time == 180: # if a predator has eaten a boid, wait 180 frames (3s) before it can eat again
-                    p.eaten = False
-                    time = 0
+                    p.cooldown += 1
+                    if p.cooldown >= 180:
+                        p.eaten = False
+                        p.cooldown = 0
 
                 # If they are on the same position as a boid, decrease their speed
-                if any(np.linalg.norm(current_posp - b.position) < 5 for b in self.boid_list):
+                if any(np.linalg.norm(current_posp - b.position) < 10 for b in self.boid_list):
                     p.velocity *= 0.2
 
                 ## A, B and C will be the points of the triangle
@@ -79,10 +77,11 @@ class Flock:
                 velocity = b.velocity
 
                 # delete boids that are in the same position as predators
-                if any(np.linalg.norm(current_pos - p.position) < 5 for p in self.predator_list) and not p.eaten:
-                    self.boid_list.remove(b)
-                    p.eaten = True
-                    continue
+                for p in self.predator_list:
+                    if np.linalg.norm(current_pos - p.position) < 10 and not p.eaten:
+                        self.boid_list.remove(b)
+                        p.eaten = True
+                        break
 
                 # make them go from one side of the screen to the other
                 if current_pos[0] < 0 or current_pos[0] > width:
@@ -140,11 +139,11 @@ class Flock:
 
         # positions of boids around predators
         positions_p = np.array([p.position for p in self.predator_list]) # get positions of predators   
-        # tree_boids = KDTree(positions_b)
-        # neighbs_pred = tree_boids.query_ball_point(positions_p, r=self.r_pred)     
+     
+        tree_boids = KDTree(positions_b)
+        neighbs_pred = tree_boids.query_ball_point(positions_p, r=self.r_pred)
 
-        neighbs_p = self.find_neighbourhood(positions_p, r=self.r_pred) # find neighbours for predators at range of attack
-        self.neighb_positions_pred = {i: positions_b[n] for i, n in enumerate(neighbs_p)} # positions of boids around each predator
+        self.neighb_positions_pred = {i: positions_b[n] for i, n in enumerate(neighbs_pred)}   
 
         # positions of predators around predators for repulsion
         neighbs_p = self.find_neighbourhood(positions_p, r=self.r_repulsion*2) # find neighbours for predators at range of repulsion
@@ -152,9 +151,9 @@ class Flock:
         
         # positions of predators around boids for repulsion
         tree_pred = KDTree(positions_p)
-        neighbs_pred = tree_pred.query_ball_point(positions_b, r=self.r_repulsion)
+        neighbs_pred_rep = tree_pred.query_ball_point(positions_b, r=self.r_repulsion*1.5)
 
-        self.neighb_positions_repulsion_pred = {i: positions_p[n] for i, n in enumerate(neighbs_pred)}
+        self.neighb_positions_repulsion_pred = {i: positions_p[n] for i, n in enumerate(neighbs_pred_rep)}
 
         
 
@@ -167,7 +166,6 @@ class Flock:
         for b_index, b in enumerate(self.boid_list):
             C = b.coherence(b_index, self.neighb_positions[b_index], self.boid_list[b_index].position, self.c_c)
             S = b.separation(b_index, self.neighb_positions_repulsion[b_index], self.boid_list[b_index].position, self.c_s)
-            #Sp = b.separation_from_predator(b_index, self.neighb_positions_repulsion_pred[b_index],self.boid_list[b_index].position,self.c_s_pred)
             Sp = b.separation(b_index, self.neighb_positions_repulsion_pred[b_index],self.boid_list[b_index].position,self.c_s_pred)
             A = b.alignment(b_index, self.neighb_velocities[b_index], self.boid_list[b_index].velocity, self.c_a)
             new_velocity.append(b.velocity + self.dt * (C + S + A + Sp))
@@ -186,7 +184,11 @@ class Flock:
         self.get_all_neighbours()
         new_velocity = []
         for b_index, p in enumerate(self.predator_list):
-            C = p.coherence(b_index, self.neighb_positions_pred[b_index], p.position, self.c_c*2)
+            # compute coherence only if there are boids in sight. Added to avoir NaN errors and predator staying stuck out of the screen with NaN velocity.
+            if b_index in self.neighb_positions_pred and len(self.neighb_positions_pred[b_index]) > 0:
+                C = p.coherence(b_index, self.neighb_positions_pred[b_index], p.position, self.c_c*2)
+            else:
+                C = np.zeros(2)
             S = p.separation(b_index, self.neighb_positions_pred_pred[b_index], p.position, self.c_s)
             new_velocity.append(p.velocity + self.dt * (C + S))
         
@@ -197,8 +199,8 @@ class Flock:
             else:
                 max_speed = 8
             # limit the acceleration of the predator
-            if np.linalg.norm(new_v - p.velocity) > 1:
-                new_v = p.velocity + (new_v - p.velocity) / np.linalg.norm(new_v - p.velocity) * 2
+            # if np.linalg.norm(new_v - p.velocity) > 1:
+            #     new_v = p.velocity + (new_v - p.velocity) / np.linalg.norm(new_v - p.velocity) * 2
 
             # limit the speed of the predator
             if np.linalg.norm(new_v) > max_speed:
@@ -206,7 +208,7 @@ class Flock:
             else:
                 p.velocity = new_v
 
-    def __init__(self, nb_boids=50, nb_predators=1, c_c=.001, c_s=.01, c_s_pred=.1, c_a=.01, r=100, r_repulsion=20, r_pred = 200, dt = 1.5, seed=0):
+    def __init__(self, nb_boids=100, nb_predators=2, c_c=.001, c_s=.01, c_s_pred=5, c_a=.01, r=100, r_repulsion=20, r_pred = 200, dt = 1.5, seed=0):
         
         np.random.seed(seed)
         
@@ -217,9 +219,8 @@ class Flock:
         ]
 
         self.predator_list = [
-            # Predator(500 + np.random.rand(2) * 100 - 50, 2*np.random.rand(2)-1) for _ in range(nb_predators)
             # predators start at the edges
-            Predator(np.random.rand(2) * np.array([1200, 700]), 2*np.random.rand(2)-1, eaten = False) for _ in range(nb_predators)
+            Predator(np.random.rand(2) * np.array([1200, 700]), 2*np.random.rand(2)-1) for _ in range(nb_predators)
         ]
 
         # Flocking parameters
