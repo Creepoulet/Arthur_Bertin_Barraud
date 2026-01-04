@@ -31,7 +31,9 @@ class Flock:
         font_eaten = pygame.font.SysFont("calibri", 10, bold=True)
 
         # Candy Crush reference
-        eat_message = ["Divine !", "Sweet !", "Tasty !", "Delicious !", "Yummy !", "Scrumptious !", "Superb !"]
+        #eat_message = ["Divine !", "Sweet !", "Tasty !", "Delicious !", "Yummy !", "Scrumptious !", "Superb !"]
+        eat_image = pygame.image.load("assets/Divine.png")
+        eat_image = pygame.transform.scale(eat_image, (122,39))
 
         while running:
             self.move_flock(n=step)
@@ -93,8 +95,9 @@ class Flock:
                         self.boid_list.remove(b)
                         p.eaten = True
                         self.score += 1
-                        eat_text = font.render(eat_message[np.random.randint(0, 7)], True, "yellow")
-                        self.eat_texts.append((eat_text, current_pos.copy(), pygame.time.get_ticks(), 1500))
+                        #eat_text = font.render(eat_message[np.random.randint(0, 7)], True, "yellow")
+                        eat_text = eat_image
+                        self.eat_image.append((eat_text, current_pos.copy(), pygame.time.get_ticks(), 1500))
                         break
 
                 # make them go from one side of the screen to the other
@@ -117,22 +120,22 @@ class Flock:
                 pygame.draw.polygon(screen, white, [A, B, C])
 
             current_time = pygame.time.get_ticks()
-            texts_to_remove = []
+            img_to_remove = []
 
-            for text_displayed, pos, start_time, duration in self.eat_texts:
+            for img, pos, start_time, duration in self.eat_image:
                 # Compute opacity based on elapsed time
                 elapsed = current_time - start_time
                 if elapsed < duration:
                     # Decrease alpha over time
                     alpha = max(0, 255 - (elapsed / duration) * 255)
-                    text_displayed.set_alpha(alpha)  # Set the alpha value
-                    screen.blit(text_displayed, pos)
+                    img.set_alpha(alpha)  # Set the alpha value
+                    screen.blit(img, pos)
                 else:
-                    texts_to_remove.append((text_displayed, pos, start_time, duration)) # Append to removal list
+                    img_to_remove.append((img, pos, start_time, duration)) # Append to removal list
 
-            # Delete texts that have finished their duration (that have been appended to the removal list)
-            for text in texts_to_remove:
-                self.eat_texts.remove(text)
+            # Delete iamges that have finished their duration (that have been appended to the removal list)
+            for text in img_to_remove:
+                self.eat_image.remove(text)
             
             # Display number of boids that have been eaten
             score_text = font.render(f"Birds predated: {self.score}", True, white)
@@ -277,6 +280,6 @@ class Flock:
         self.r_repulsion = r_repulsion
         self.r_pred = r_pred
         self.score = score
-        self.eat_texts = []
+        self.eat_image = []
         self.dt = dt
         print("In Flock")
