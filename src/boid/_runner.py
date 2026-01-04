@@ -90,26 +90,11 @@ def run():
     customtkinter.set_appearance_mode("dark")
     customtkinter.set_default_color_theme("dark-blue")
 
-    # root window
-    root = customtkinter.CTk()
-    root.title("Boid Simulation")
-    root.geometry("400x300")
-
-    # Input function
-    def input():
-        dialog = customtkinter.CTkInputDialog(text="Enter number of birds:", title="Input")
-        num_birds = int(dialog.get_input())
-        dialog2 = customtkinter.CTkInputDialog(text="Enter number of predators:", title="Input")
-        num_predators = int(dialog2.get_input())
-
-    # Create a button to start the simulation
-    my_button = customtkinter.CTkButton(root, text = "Start Simulation", command = input)
-    my_button.pack(pady=40)
-
-    # create a label
-    my_laber = customtkinter.CTkLabel(root, text = "")
-    my_laber.pack(pady=10)
+    # Input dialogs for number of birds and predators
+    dialog = customtkinter.CTkInputDialog(text="Enter number of birds :", title="Input")
+    num_birds = int(dialog.get_input())
+    dialog2 = customtkinter.CTkInputDialog(text=f"Number of birds : {num_birds}\n Enter number of predators :", title="Input")
+    num_predators = int(dialog2.get_input())
 
     flock = Flock(num_birds, num_predators)
-    
     flock.show_flock()
