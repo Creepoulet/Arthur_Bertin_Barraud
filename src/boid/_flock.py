@@ -27,8 +27,10 @@ class Flock:
 
         pygame.font.init()
         font = pygame.font.SysFont("calibri", 30)
+        font_cd = pygame.font.SysFont("calibri", 20)
         font_eaten = pygame.font.SysFont("calibri", 10, bold=True)
 
+        # Candy Crush reference
         eat_message = ["DIVINE !", "SWEET !", "TASTY !", "DELICIOUS !", "YUMMY !", "SCRUMPTIOUS !", "SUPERB !"]
 
         while running:
@@ -117,24 +119,28 @@ class Flock:
             current_time = pygame.time.get_ticks()
             texts_to_remove = []
 
-            for text_surface, pos, start_time, duration in self.eat_texts:
+            for text_displayed, pos, start_time, duration in self.eat_texts:
                 # Compute opacity based on elapsed time
                 elapsed = current_time - start_time
                 if elapsed < duration:
                     # Decrease alpha over time
                     alpha = max(0, 255 - (elapsed / duration) * 255)
-                    text_surface.set_alpha(alpha)  # Applique l'opacité
-                    screen.blit(text_surface, pos)
+                    text_displayed.set_alpha(alpha)  # Set the alpha value
+                    screen.blit(text_displayed, pos)
                 else:
-                    texts_to_remove.append((text_surface, pos, start_time, duration))
+                    texts_to_remove.append((text_displayed, pos, start_time, duration)) # Append to removal list
 
-            # Delete texts that have finished their duration
+            # Delete texts that have finished their duration (that have been appended to the removal list)
             for text in texts_to_remove:
                 self.eat_texts.remove(text)
             
             # Display number of boids that have been eaten
             score_text = font.render(f"Birds predated: {self.score}", True, white)
             screen.blit(score_text, (10, 10))
+            for p_index, p in enumerate(self.predator_list):
+                if p.eaten:
+                    cooldown_text = font_cd.render(f"Predator {p_index+1} cooldown: {3-(p.cooldown/60):.2f}s", True, white)
+                    screen.blit(cooldown_text, (10, 40 + 30 * p_index))
 
             # Update the display
             pygame.display.flip()
