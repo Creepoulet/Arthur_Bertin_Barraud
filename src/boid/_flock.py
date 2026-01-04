@@ -119,10 +119,6 @@ class Flock:
                             p.eaten = False
                             p.cooldown = 0
 
-                # If they are on the same position as a boid, decrease their speed
-                if any(np.linalg.norm(current_posp - b.position) < 10 for b in self.boid_list):
-                    p.velocity *= 0.2
-
                 ## A, B and C will be the points of the triangle
                 Cp = current_posp + scale * directionp
                 Ap = (
@@ -324,7 +320,7 @@ class Flock:
             else:
                 p.velocity = new_v
 
-    def __init__(self, nb_boids=100, nb_predators=2, c_c=.001, c_s=.01, c_s_pred=5, c_a=.01, r=100, r_repulsion=20, r_pred = 200, score=0, dt = 1.5, seed=0):
+    def __init__(self, nb_boids=100, nb_predators=2, c_c=.001, c_s=.01, c_s_pred=5, c_a=.01, r=100, r_repulsion=20, r_pred = 200, score=0, dt = 1.5, seed=np.random.randint(0, 10000)):
         
         np.random.seed(seed)
         

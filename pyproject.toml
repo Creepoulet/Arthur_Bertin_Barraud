@@ -7,7 +7,7 @@ where = ["src"]
 
 [project]
 authors = [
-    { name = "Your Name", email = "your.email@univ-amu.fr"},
+    { name = "Arthur Bertin Barraud", email = "arthur.bertin-barraud@etu.univ-amu.fr"},
 ]
 name = "boid"
 description = "A boid implementation"
@@ -15,23 +15,21 @@ version = "1.0.0"
 license = "MIT"
 license-files = [ "LICENSE" ]
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">= 3.10"
+requires-python = "== 3.9.13"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.9.13 Only",
+
 ]
 
 dependencies = [
     "numpy",
     "pygame",
+    "customtkinter",
+    "matplotlib",
+    "scipy"
 ]
 
 [project.scripts]
