@@ -31,7 +31,7 @@ class Flock:
         font_eaten = pygame.font.SysFont("calibri", 10, bold=True)
 
         # Candy Crush reference
-        eat_message = ["DIVINE !", "SWEET !", "TASTY !", "DELICIOUS !", "YUMMY !", "SCRUMPTIOUS !", "SUPERB !"]
+        eat_message = ["Divine !", "Sweet !", "Tasty !", "Delicious !", "Yummy !", "Scrumptious !", "Superb !"]
 
         while running:
             self.move_flock(n=step)
