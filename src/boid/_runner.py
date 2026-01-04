@@ -1,6 +1,8 @@
 from boid import Flock, Bird, Predator
 import pygame
 import numpy as np
+from tkinter import *
+import customtkinter
 
 def setup_pygame(
     width: int = 600, height: int = 600, title: str = "Moving Triangles"
@@ -83,6 +85,31 @@ def run_test():
 
 
 def run():
-    flock = Flock(100, 2)
+
+    # Custom Tkinter appearance
+    customtkinter.set_appearance_mode("dark")
+    customtkinter.set_default_color_theme("dark-blue")
+
+    # root window
+    root = customtkinter.CTk()
+    root.title("Boid Simulation")
+    root.geometry("400x300")
+
+    # Input function
+    def input():
+        dialog = customtkinter.CTkInputDialog(text="Enter number of birds:", title="Input")
+        num_birds = int(dialog.get_input())
+        dialog2 = customtkinter.CTkInputDialog(text="Enter number of predators:", title="Input")
+        num_predators = int(dialog2.get_input())
+
+    # Create a button to start the simulation
+    my_button = customtkinter.CTkButton(root, text = "Start Simulation", command = input)
+    my_button.pack(pady=40)
+
+    # create a label
+    my_laber = customtkinter.CTkLabel(root, text = "")
+    my_laber.pack(pady=10)
+
+    flock = Flock(num_birds, num_predators)
     
     flock.show_flock()

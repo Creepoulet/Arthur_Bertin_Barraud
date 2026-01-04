@@ -28,22 +28,47 @@ class Flock:
         pygame.font.init()
         font = pygame.font.SysFont("calibri", 30)
         font_cd = pygame.font.SysFont("calibri", 20)
-        font_eaten = pygame.font.SysFont("calibri", 10, bold=True)
+        # font_eaten = pygame.font.SysFont("calibri", 10, bold=True)
+
+        def load_resize_image(path):
+            img = pygame.image.load(path)
+            w, h = img.get_size()
+            img = pygame.transform.scale(img, (w//3, h//3))
+            return img
+
+        # Game variables
+        game_paused = False
 
         # Candy Crush reference
-        #eat_message = ["Divine !", "Sweet !", "Tasty !", "Delicious !", "Yummy !", "Scrumptious !", "Superb !"]
-        eat_image = pygame.image.load("assets/Divine.png")
-        eat_image = pygame.transform.scale(eat_image, (122,39))
+        # eat_message = ["Divine !", "Sweet !", "Tasty !", "Delicious !", "Yummy !", "Scrumptious !", "Superb !"]
+        Divine_image = load_resize_image("assets/Divine.png")
+        Sweet_image = load_resize_image("assets/Sweet.png")
+        Tasty_image = load_resize_image("assets/Tasty.png")
+        Delicious_image = load_resize_image("assets/Delicious.png")
+        Frogtastic_image = load_resize_image("assets/Frogtastic.png")
+        eat_image = [Divine_image, Sweet_image, Tasty_image, Delicious_image, Frogtastic_image]
 
         while running:
             self.move_flock(n=step)
 
-            # Making sure that we stop the program when the user closes the window
+            screen.fill(black)
+
+            # Check if game is paused
+            if game_paused:
+                pass 
+            else:
+                pause_text = font.render("Press SPACE to pause", True, white)
+                screen.blit(pause_text, (1600, 600)) 
+
+            # Making sure that we stop the program when the user closes the window, and pausing when space is pressed
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                if event.type == pygame.KEYDOWN:       
+                    if event.type == pygame.K_SPACE:
+                        game_paused = True
+                    
 
-            screen.fill(black)
 
             for p in self.predator_list:
                 current_posp = p.position
@@ -95,8 +120,8 @@ class Flock:
                         self.boid_list.remove(b)
                         p.eaten = True
                         self.score += 1
-                        #eat_text = font.render(eat_message[np.random.randint(0, 7)], True, "yellow")
-                        eat_text = eat_image
+                        # eat_text = font.render(eat_message[np.random.randint(0, 7)], True, "yellow")
+                        eat_text = eat_image[np.random.randint(0, len(eat_image))]
                         self.eat_image.append((eat_text, current_pos.copy(), pygame.time.get_ticks(), 1500))
                         break
 
