@@ -28,6 +28,7 @@ class Flock:
         pygame.font.init()
         font = pygame.font.SysFont("calibri", 30)
         font_cd = pygame.font.SysFont("calibri", 20)
+        font_welcome = pygame.font.SysFont("calibri", 200, bold=True)
         # font_eaten = pygame.font.SysFont("calibri", 10, bold=True)
 
         def load_resize_image(path):
@@ -50,13 +51,32 @@ class Flock:
         Frogtastic_image = load_resize_image("assets/Frogtastic.png")
         eat_image = [Divine_image, Sweet_image, Tasty_image, Delicious_image, Frogtastic_image]
 
+        # Initiation of countdown variables
+        last_update = pygame.time.get_ticks()
+        countdown = 3 # countdown from 3 to 1
+        countdown_duration = 1000  # each number lasts 1 second
+        current_count = countdown
+
         while running:
 
             screen.fill(black)
 
+            # Handle countdown display
+            time_passed = pygame.time.get_ticks() - last_update
+            if time_passed < countdown * countdown_duration:
+                # Calculate which number to display
+                current_count = countdown - (time_passed // countdown_duration)
+                count_time_passed = time_passed % countdown_duration
+                if current_count > 0:
+                    welcome_text = font_welcome.render(str(current_count), True, white)
+                    alpha = max(0, 255 - (count_time_passed / countdown_duration) * 255)
+                    welcome_text.set_alpha(alpha)
+                    screen.blit(welcome_text, (550, 230))
+
             # Move the flock only if the game is not paused
             if not game_paused:
-                self.move_flock(n=step)
+                if pygame.time.get_ticks() >= 3500:
+                    self.move_flock(n=step)
                 pause_text = font_cd.render("Press SPACE to pause", True, white)
                 screen.blit(pause_text, (1000, 670)) 
             else:

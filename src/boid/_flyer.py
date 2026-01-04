@@ -35,20 +35,8 @@ class Flyer:
         Args:
             dt: The time step for the simulation
         """
-        # new_position = self.position + self.velocity*dt 
-        # self.position = new_position
-        # self.update_velocity(dt=dt)
-
-        # if not np.all(np.isfinite(self.velocity)):
-        # self.velocity = np.zeros_like(self.velocity)
-
-        # update position
-        self.position = self.position + self.velocity * dt
-
-        # If the position contains NaN or Inf, reset it to zero
-        if not np.all(np.isfinite(self.position)):
-            self.position = np.nan_to_num(self.position)
-
+        new_position = self.position + self.velocity*dt 
+        self.position = new_position
         self.update_velocity(dt=dt)
         ...
 
@@ -69,8 +57,6 @@ class Flyer:
         ax.plot(*traj.T, "o-")
         ax.set_aspect("equal")
         ...
-
-    #truc pour qu'ils évitent les bords de l'écran 
 
 
     def __init__(self, p, v, dt=0.1) -> None:
