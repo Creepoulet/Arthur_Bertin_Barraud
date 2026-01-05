@@ -9,6 +9,12 @@ import pygame
 class Flock:
 
     def show_flock(self, step=1):
+        '''
+        Docstring for show_flock
+        
+        :param self: Description
+        :param step: Description
+        '''
         print("In show_flock")
         pygame.init()
 
@@ -25,6 +31,7 @@ class Flock:
 
         running = True
 
+        # Setting the different fonts used to display text
         pygame.font.init()
         font = pygame.font.SysFont("calibri", 30)
         font_cd = pygame.font.SysFont("calibri", 20)
@@ -43,8 +50,7 @@ class Flock:
         pause_time = 0
         unpause_time = 0
 
-        # Candy Crush reference
-        # eat_message = ["Divine !", "Sweet !", "Tasty !", "Delicious !", "Yummy !", "Scrumptious !", "Superb !"]
+        # Candy Crush reference when the predators eat a bird
         Divine_image = load_resize_image("assets/Divine.png")
         Sweet_image = load_resize_image("assets/Sweet.png")
         Tasty_image = load_resize_image("assets/Tasty.png")
@@ -149,7 +155,6 @@ class Flock:
                         self.boid_list.remove(b)
                         p.eaten = True
                         self.score += 1 # increment score when a boid is eaten
-                        # eat_text = font.render(eat_message[np.random.randint(0, 7)], True, "yellow")
                         eat_text = eat_image[np.random.randint(0, len(eat_image))] # add eat image when a boid is eaten
                         self.eat_image.append((eat_text, current_pos.copy(), pygame.time.get_ticks(), 1500)) # append image with its position, start time and duration
                         # If there is no bird left, game is paused
@@ -227,7 +232,7 @@ class Flock:
                 end_text2.set_alpha(alpha)
                 screen.blit(end_text1, (350, 250))
                 screen.blit(end_text2, (190, 350))
-                
+
                 # Hidden messages after the end, far too long I concede, but I was having fun
                 if time_passed_after_end >= end_duration + end_time + 5000:
                     hidden_text1 = font.render("Still here ?", True, white)
@@ -267,12 +272,25 @@ class Flock:
         pygame.quit()
 
     def move_flock(self, n=1): 
+        '''
+        Docstring for move_flock
+        
+        :param self: Description
+        :param n: Description
+        '''
         for _ in range(n):
             self.one_step_move_boid()
             self.one_step_move_predator()
 
     
     def find_neighbourhood(self, positions, r=None):
+        '''
+        Docstring for find_neighbourhood
+        
+        :param self: Description
+        :param positions: Description
+        :param r: Description
+        '''
         if r is None:
             r = self.r
         kdtree = KDTree(positions)
@@ -280,6 +298,11 @@ class Flock:
         return neighbs
 
     def get_all_neighbours(self):
+        '''
+        Docstring for get_all_neighbours
+        
+        :param self: Description
+        '''
 
         # positions and velocity of boids around boids
         positions_b = np.array([b.position for b in self.boid_list])
@@ -315,6 +338,11 @@ class Flock:
         
 
     def one_step_move_boid(self):
+        '''
+        Docstring for one_step_move_boid
+        
+        :param self: Description
+        '''
         for b in self.boid_list:
             b.move_flyer(dt=self.dt)
 
@@ -339,6 +367,11 @@ class Flock:
 
     # Corriger les prédateurs en l'état ça va pas du tout ils vont super vite pour rien
     def one_step_move_predator(self):
+        '''
+        Docstring for one_step_move_predator
+        
+        :param self: Description
+        '''
         for p in self.predator_list:
             p.move_flyer(dt=self.dt)
 
@@ -376,7 +409,23 @@ class Flock:
                 p.velocity = new_v
 
     def __init__(self, nb_boids=100, nb_predators=2, c_c=.001, c_s=.01, c_s_pred=5, c_a=.01, r=100, r_repulsion=20, r_pred = 200, score=0, dt = 1.5, seed=np.random.randint(0, 10000)):
+        '''
+        Docstring for __init__
         
+        :param self: Description
+        :param nb_boids: Description
+        :param nb_predators: Description
+        :param c_c: Description
+        :param c_s: Description
+        :param c_s_pred: Description
+        :param c_a: Description
+        :param r: Description
+        :param r_repulsion: Description
+        :param r_pred: Description
+        :param score: Description
+        :param dt: Description
+        :param seed: Description
+        '''
         np.random.seed(seed)
         
         # Create boid and predator lists

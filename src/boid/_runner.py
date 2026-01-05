@@ -84,6 +84,9 @@ def run_test():
 
 
 def run():
+    '''
+    Docstring for run
+    '''
 
     # Custom Tkinter appearance
     customtkinter.set_appearance_mode("dark")
