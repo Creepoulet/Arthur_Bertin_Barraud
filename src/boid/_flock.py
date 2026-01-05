@@ -247,7 +247,7 @@ class Flock:
                                 hidden_text4 = font.render("Well, this one's not the last", True, white)
                                 screen.blit(hidden_text4, (100, 650))
                                 if time_passed_after_end >= end_duration + end_time + 13000:
-                                    hidden_text5 = font.render("This a subliminal message...", True, white)
+                                    hidden_text5 = font.render("This is a subliminal message...", True, white)
                                     screen.blit(hidden_text5, (50, 540))
                                     if time_passed_after_end >= end_duration + end_time + 15000:
                                         hidden_text5 = font.render("...your are now convinced this project deserve a 20/20", True, white)
@@ -317,16 +317,18 @@ class Flock:
 
         # Check if there are predators
         if len(self.predator_list) > 0:
-            # positions of boids around predators
-            positions_p = np.array([p.position for p in self.predator_list]) # get positions of predators   
+
+            # get positions of predators
+            positions_p = np.array([p.position for p in self.predator_list])    
         
+            # positions of boids around predators
             tree_boids = KDTree(positions_b)
             neighbs_pred = tree_boids.query_ball_point(positions_p, r=self.r_pred)
 
             self.neighb_positions_pred = {i: positions_b[n] for i, n in enumerate(neighbs_pred)}   
 
             # positions of predators around predators for repulsion
-            neighbs_p = self.find_neighbourhood(positions_p, r=self.r_repulsion*3) # find neighbours for predators at range of repulsion
+            neighbs_p = self.find_neighbourhood(positions_p, r=self.r_repulsion*3) 
             self.neighb_positions_pred_pred = {i: positions_p[n] for i, n in enumerate(neighbs_p)} 
             
             # positions of predators around boids for repulsion
@@ -364,8 +366,6 @@ class Flock:
             else:
                 b.velocity = new_v
 
-
-    # Corriger les prédateurs en l'état ça va pas du tout ils vont super vite pour rien
     def one_step_move_predator(self):
         '''
         Docstring for one_step_move_predator
@@ -379,12 +379,12 @@ class Flock:
         new_velocity = []
         for b_index, p in enumerate(self.predator_list):
             # compute coherence only if there are boids in sight. Added to avoid NaN errors and predator staying stuck out of the screen with NaN velocity.
-            if b_index in self.neighb_positions_pred and len(self.neighb_positions_pred[b_index]) > 0:
+            if len(self.neighb_positions_pred[b_index]) > 0:
                 C = p.coherence(b_index, self.neighb_positions_pred[b_index], p.position, self.c_c*2)
             else:
                 C = np.zeros(2)
             # compute separation from other predators so that they don't stack and stay less in the same place
-            if b_index in self.neighb_positions_pred_pred and len(self.neighb_positions_pred_pred[b_index]) > 0:
+            if len(self.neighb_positions_pred_pred[b_index]) > 0:
                 S = p.separation(b_index, self.neighb_positions_pred_pred[b_index], p.position, self.c_s)
             else:
                 S = np.zeros(2)
@@ -398,7 +398,7 @@ class Flock:
             else:
                 max_speed = 8
 
-            #limit the acceleration of the predator
+            # limit the acceleration of the predator, looks more "realistic"
             if np.linalg.norm(new_v - p.velocity) > 1:
                 new_v = p.velocity + (new_v - p.velocity) / np.linalg.norm(new_v - p.velocity) * 2
 

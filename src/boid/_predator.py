@@ -26,18 +26,6 @@ class Predator(Flyer):
         :param c_s: Description
         '''
         return -c_s * np.sum(neighb_positions - b_position, axis=0)
-    
-    def alignment(self, b_index, neighb_velocities, b_velocity, c_a):
-        '''
-        Docstring for alignment
-        
-        :param self: Description
-        :param b_index: Description
-        :param neighb_velocities: Description
-        :param b_velocity: Description
-        :param c_a: Description
-        '''
-        return c_a * (np.mean(neighb_velocities, axis=0) - b_velocity)
 
     def __init__(self, p, v, dt=0.1, eaten=False, cooldown=0) -> None:
         '''
