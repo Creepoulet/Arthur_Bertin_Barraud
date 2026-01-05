@@ -29,6 +29,7 @@ class Flock:
         font = pygame.font.SysFont("calibri", 30)
         font_cd = pygame.font.SysFont("calibri", 20)
         font_welcome = pygame.font.SysFont("calibri", 200, bold=True)
+        font_end = pygame.font.SysFont("calibri", 100, bold=True)
         # font_eaten = pygame.font.SysFont("calibri", 10, bold=True)
 
         def load_resize_image(path):
@@ -52,7 +53,6 @@ class Flock:
         eat_image = [Divine_image, Sweet_image, Tasty_image, Delicious_image, Frogtastic_image]
 
         # Initiation of countdown variables
-        last_update = pygame.time.get_ticks()
         countdown = 3 # countdown from 3 to 1
         countdown_duration = 1000  # each number lasts 1 second
         current_count = countdown
@@ -62,7 +62,7 @@ class Flock:
             screen.fill(black)
 
             # Handle countdown display
-            time_passed = pygame.time.get_ticks() - last_update
+            time_passed = pygame.time.get_ticks() 
             if time_passed < countdown * countdown_duration:
                 # Calculate which number to display
                 current_count = countdown - (time_passed // countdown_duration)
@@ -75,7 +75,7 @@ class Flock:
 
             # Move the flock only if the game is not paused
             if not game_paused:
-                if pygame.time.get_ticks() >= 3500:
+                if pygame.time.get_ticks() >= 3100:
                     self.move_flock(n=step)
                 pause_text = font_cd.render("Press SPACE to pause", True, white)
                 screen.blit(pause_text, (1000, 670)) 
@@ -91,13 +91,15 @@ class Flock:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
-                if event.type == pygame.KEYDOWN: # check if a key is pressed
-                    if event.key == pygame.K_SPACE: # check if the key is space
-                        game_paused = not game_paused # game_paused becomes its opposite
-                        if game_paused:
-                            pause_time = pygame.time.get_ticks() # store the time when the game is paused
-                        else:
-                            unpause_time = pygame.time.get_ticks() # store the time when the game is unpaused
+                # Pausing and unpausing the game is only possible when there is still some birds left
+                if len(self.boid_list) > 0:
+                    if event.type == pygame.KEYDOWN: # check if a key is pressed
+                        if event.key == pygame.K_SPACE: # check if the key is space
+                            game_paused = not game_paused # game_paused becomes its opposite
+                            if game_paused:
+                                pause_time = pygame.time.get_ticks() # store the time when the game is paused
+                            else:
+                                unpause_time = pygame.time.get_ticks() # store the time when the game is unpaused
 
 
             for p in self.predator_list:
@@ -141,7 +143,7 @@ class Flock:
                 current_pos = b.position
                 velocity = b.velocity
 
-                # delete boids that are in the same position as predators
+                # Delete boids that are in the same position as predators
                 for p in self.predator_list:
                     if np.linalg.norm(current_pos - p.position) < 10 and not p.eaten:
                         self.boid_list.remove(b)
@@ -150,6 +152,10 @@ class Flock:
                         # eat_text = font.render(eat_message[np.random.randint(0, 7)], True, "yellow")
                         eat_text = eat_image[np.random.randint(0, len(eat_image))] # add eat image when a boid is eaten
                         self.eat_image.append((eat_text, current_pos.copy(), pygame.time.get_ticks(), 1500)) # append image with its position, start time and duration
+                        # If there is no bird left, game is paused
+                        if len(self.boid_list) == 0:
+                            game_paused = True
+                            end_time = pygame.time.get_ticks()
                         break
 
                 # make them go from one side of the screen to the other
@@ -203,6 +209,55 @@ class Flock:
             
             escape_text = font_cd.render("Press ESCAPE to quit", True, white)
             screen.blit(escape_text, (1025, 10)) 
+
+            end_duration = 1500  # each number lasts 1 second
+
+            # Manage if there is no bird left, as game is automatically paused
+            if game_paused and len(self.boid_list) == 0:
+                time_passed_after_end = pygame.time.get_ticks() 
+                count_time_passed_after_end = time_passed_after_end - end_time
+                if time_passed_after_end <= end_duration + end_time:
+                    alpha = (count_time_passed_after_end / end_duration) * 255
+                else:
+                    alpha = 255
+                screen.fill(black)
+                end_text1 = font_end.render("No bird left", True, white)
+                end_text2 = font_end.render("Press ESCAPE to quit", True, white)
+                end_text1.set_alpha(alpha)
+                end_text2.set_alpha(alpha)
+                screen.blit(end_text1, (350, 250))
+                screen.blit(end_text2, (190, 350))
+                
+                # Hidden messages after the end, far too long I concede, but I was having fun
+                if time_passed_after_end >= end_duration + end_time + 5000:
+                    hidden_text1 = font.render("Still here ?", True, white)
+                    screen.blit(hidden_text1, (550, 450))
+                    if time_passed_after_end >= end_duration + end_time + 7000:
+                        hidden_text2 = font.render("Not much to do uh", True, white)
+                        screen.blit(hidden_text2, (20, 20))
+                        if time_passed_after_end >= end_duration + end_time + 9000:
+                            hidden_text3 = font.render("Now you want to see hom many of them there is", True, white)
+                            screen.blit(hidden_text3, (500, 50))
+                            if time_passed_after_end >= end_duration + end_time + 11000:
+                                hidden_text4 = font.render("Well, this one's not the last", True, white)
+                                screen.blit(hidden_text4, (100, 650))
+                                if time_passed_after_end >= end_duration + end_time + 13000:
+                                    hidden_text5 = font.render("This a subliminal message...", True, white)
+                                    screen.blit(hidden_text5, (50, 540))
+                                    if time_passed_after_end >= end_duration + end_time + 15000:
+                                        hidden_text5 = font.render("...your are now convinced this project deserve a 20/20", True, white)
+                                        screen.blit(hidden_text5, (450, 580))
+                                        if time_passed_after_end >= end_duration + end_time + 17000:
+                                            hidden_text5 = font.render("Ok now you can go", True, white)
+                                            screen.blit(hidden_text5, (200, 150))
+                                            if time_passed_after_end >= end_duration + end_time + 19000:
+                                                hidden_text5 = font.render("Don't want to leave ?", True, white)
+                                                screen.blit(hidden_text5, (700, 130))
+                                                if time_passed_after_end >= end_duration + end_time + 21000:
+                                                    hidden_text5 = font.render("Fine, I'll do it myself", True, white)
+                                                    screen.blit(hidden_text5, (800, 200))
+                                                    if time_passed_after_end >= end_duration + end_time + 26000:
+                                                        running = False
 
             # Update the display
             pygame.display.flip()
