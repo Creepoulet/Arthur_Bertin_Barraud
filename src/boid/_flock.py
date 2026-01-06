@@ -10,10 +10,12 @@ class Flock:
 
     def show_flock(self, step=1):
         '''
-        Docstring for show_flock
+        Display the moving flock using pygame based on the move_flock function.
+        Manage the predators eating the boids when being close enough along with the cooldown between each "boid eating".
+        Allow the user to pause the simulation.
         
-        :param self: Description
-        :param step: Description
+        Args:
+            step : Number of iterations of mouvements per frame.
         '''
         print("In show_flock")
         pygame.init()
@@ -37,9 +39,14 @@ class Flock:
         font_cd = pygame.font.SysFont("calibri", 20)
         font_welcome = pygame.font.SysFont("calibri", 200, bold=True)
         font_end = pygame.font.SysFont("calibri", 100, bold=True)
-        # font_eaten = pygame.font.SysFont("calibri", 10, bold=True)
 
         def load_resize_image(path):
+            '''
+            Load a resize an image using its path and dividing its dimensions by 3.
+            
+            Args:
+                path : The path leading to the image
+            '''
             img = pygame.image.load(path)
             w, h = img.get_size()
             img = pygame.transform.scale(img, (w//3, h//3))
@@ -50,7 +57,7 @@ class Flock:
         pause_time = 0
         unpause_time = 0
 
-        # Candy Crush reference when the predators eat a bird
+        # Candy Crush reference when the predators eat a bird.
         Divine_image = load_resize_image("assets/Divine.png")
         Sweet_image = load_resize_image("assets/Sweet.png")
         Tasty_image = load_resize_image("assets/Tasty.png")
@@ -59,7 +66,7 @@ class Flock:
         eat_image = [Divine_image, Sweet_image, Tasty_image, Delicious_image, Frogtastic_image]
 
         # Initiation of countdown variables
-        countdown = 3 # countdown from 3 to 1
+        countdown = 3 # decreasing countdown from 3
         countdown_duration = 1000  # each number lasts 1 second
         current_count = countdown
 
@@ -70,7 +77,7 @@ class Flock:
             # Handle countdown display
             time_passed = pygame.time.get_ticks() 
             if time_passed < countdown * countdown_duration:
-                # Calculate which number to display
+                # Calculate which number to display, and display it with a fade out
                 current_count = countdown - (time_passed // countdown_duration)
                 count_time_passed = time_passed % countdown_duration
                 if current_count > 0:
@@ -80,6 +87,7 @@ class Flock:
                     screen.blit(welcome_text, (550, 230))
 
             # Move the flock only if the game is not paused
+            # Display the pause/unpause message.
             if not game_paused:
                 if pygame.time.get_ticks() >= 3100:
                     self.move_flock(n=step)
@@ -112,14 +120,14 @@ class Flock:
                 current_posp = p.position
                 velocityp = p.velocity
 
-                # make them go from one side of the screen to the other
+                # Make them go from one side of the screen to the other
                 if current_posp[0] < 0 or current_posp[0] > width:
                     current_posp[0] = current_posp[0] % width
                 if current_posp[1] < 0 or current_posp[1] > height:
                     current_posp[1] = current_posp[1] % height
                 directionp = (velocityp) / np.linalg.norm(velocityp)
 
-                # manage cooldown after eating (predator will be slower for a while, cf one_step_move_predator)
+                # Manage cooldown after eating (predator will be slower for a while, cf one_step_move_predator)
                 if not game_paused:
                     if p.eaten:
                         p.cooldown += 1
@@ -157,13 +165,13 @@ class Flock:
                         self.score += 1 # increment score when a boid is eaten
                         eat_text = eat_image[np.random.randint(0, len(eat_image))] # add eat image when a boid is eaten
                         self.eat_image.append((eat_text, current_pos.copy(), pygame.time.get_ticks(), 1500)) # append image with its position, start time and duration
-                        # If there is no bird left, game is paused
+                        # If there is no bird left, game is paused (avoid crash and trigger end of simulation)
                         if len(self.boid_list) == 0:
                             game_paused = True
-                            end_time = pygame.time.get_ticks()
+                            end_time = pygame.time.get_ticks() # store the time when the game has ended
                         break
 
-                # make them go from one side of the screen to the other
+                # Make them go from one side of the screen to the other
                 if current_pos[0] < 0 or current_pos[0] > width:
                     current_pos[0] = current_pos[0] % width
                 if current_pos[1] < 0 or current_pos[1] > height:
@@ -204,7 +212,7 @@ class Flock:
             for i in sorted(img_to_remove, reverse=True):
                 del self.eat_image[i]
             
-            # Display number of boids that have been eaten
+            # Display number of boids that have been eaten, the cooldown of each predator, and the escape message.
             score_text = font.render(f"Birds predated: {self.score}", True, white)
             screen.blit(score_text, (10, 10))
             for p_index, p in enumerate(self.predator_list):
@@ -215,9 +223,12 @@ class Flock:
             escape_text = font_cd.render("Press ESCAPE to quit", True, white)
             screen.blit(escape_text, (1025, 10)) 
 
-            end_duration = 1500  # each number lasts 1 second
+            # Time for the end message to fade in.
+            end_duration = 1500  
 
-            # Manage if there is no bird left, as game is automatically paused
+            # Manage the end of the simulation.
+            # Only instance when the simulation is paused and there is no boid left is when it has ended.
+            # Display a black screen with a fade in end message.
             if game_paused and len(self.boid_list) == 0:
                 time_passed_after_end = pygame.time.get_ticks() 
                 count_time_passed_after_end = time_passed_after_end - end_time
@@ -233,7 +244,7 @@ class Flock:
                 screen.blit(end_text1, (350, 250))
                 screen.blit(end_text2, (190, 350))
 
-                # Hidden messages after the end, far too long I concede, but I was having fun
+                # Hidden messages if you wait 5s after the end then every 2s. Far too long I concede, but I was having fun.
                 if time_passed_after_end >= end_duration + end_time + 5000:
                     hidden_text1 = font.render("Still here ?", True, white)
                     screen.blit(hidden_text1, (550, 450))
@@ -264,19 +275,19 @@ class Flock:
                                                     if time_passed_after_end >= end_duration + end_time + 26000:
                                                         running = False
 
-            # Update the display
+            # Update the display.
             pygame.display.flip()
 
-            # Frame rate
+            # Frame rate.
             pygame.time.Clock().tick(60)
         pygame.quit()
 
     def move_flock(self, n=1): 
         '''
-        Docstring for move_flock
+        Move all the boids
         
-        :param self: Description
-        :param n: Description
+        Args:
+            n : Number of iterations of mouvements
         '''
         for _ in range(n):
             self.one_step_move_boid()
@@ -285,12 +296,13 @@ class Flock:
     
     def find_neighbourhood(self, positions, r=None):
         '''
-        Docstring for find_neighbourhood
+        Compute the neighbours of a bird or predator based on its position and radius around it.
         
-        :param self: Description
-        :param positions: Description
-        :param r: Description
+        Args:
+            positions: positions of every boids.
+            r : radius of neighbourhood.
         '''
+
         if r is None:
             r = self.r
         kdtree = KDTree(positions)
@@ -298,13 +310,12 @@ class Flock:
         return neighbs
 
     def get_all_neighbours(self):
-        '''
-        Docstring for get_all_neighbours
-        
-        :param self: Description
-        '''
+        """
+        Compute the dictionaries of neighbours for each boid and predator based on self position, velocity and neighbours.
 
-        # positions and velocity of boids around boids
+        """
+
+        # Positions and velocity of boids around boids.
         positions_b = np.array([b.position for b in self.boid_list])
         velocities_b = np.array([b.velocity for b in self.boid_list])
 
@@ -315,23 +326,23 @@ class Flock:
         neighbs = self.find_neighbourhood(positions_b, r=self.r_repulsion)
         self.neighb_positions_repulsion = {i: positions_b[n] for i, n in enumerate(neighbs)}
 
-        # Check if there are predators
+        # Check if there are predators.
         if len(self.predator_list) > 0:
 
-            # get positions of predators
+            # Get positions of predators.
             positions_p = np.array([p.position for p in self.predator_list])    
         
-            # positions of boids around predators
+            # Positions of boids around predators.
             tree_boids = KDTree(positions_b)
             neighbs_pred = tree_boids.query_ball_point(positions_p, r=self.r_pred)
 
             self.neighb_positions_pred = {i: positions_b[n] for i, n in enumerate(neighbs_pred)}   
 
-            # positions of predators around predators for repulsion
+            # Positions of predators around predators for repulsion.
             neighbs_p = self.find_neighbourhood(positions_p, r=self.r_repulsion*3) 
             self.neighb_positions_pred_pred = {i: positions_p[n] for i, n in enumerate(neighbs_p)} 
             
-            # positions of predators around boids for repulsion
+            # Positions of predators around boids for repulsion.
             tree_pred = KDTree(positions_p)
             neighbs_pred_rep = tree_pred.query_ball_point(positions_b, r=self.r_repulsion*1.5)
 
@@ -340,25 +351,26 @@ class Flock:
         
 
     def one_step_move_boid(self):
-        '''
-        Docstring for one_step_move_boid
-        
-        :param self: Description
-        '''
+        """
+        Move the boids based on their velocity using move_flyer.
+        Compute the velocity of the boids based on their neighbours and previous velocity by calculating their coherence, separation and alignment between each other and separation from predators .
+        Limit the maximum speed of the boids.
+
+        """
         for b in self.boid_list:
             b.move_flyer(dt=self.dt)
 
         self.get_all_neighbours()
         new_velocity = []
         for b_index, b in enumerate(self.boid_list):
-            C = b.coherence(b_index, self.neighb_positions[b_index], self.boid_list[b_index].position, self.c_c)
-            S = b.separation(b_index, self.neighb_positions_repulsion[b_index], self.boid_list[b_index].position, self.c_s)
-            # Check if there are predators to avoid, else Sp is zero
+            C = b.coherence(self.neighb_positions[b_index], self.boid_list[b_index].position, self.c_c)
+            S = b.separation(self.neighb_positions_repulsion[b_index], self.boid_list[b_index].position, self.c_s)
+            # Check if there are predators to avoid, else Sp is zero.
             if len(self.predator_list) > 0:
-                Sp = b.separation(b_index, self.neighb_positions_repulsion_pred[b_index],self.boid_list[b_index].position,self.c_s_pred)
+                Sp = b.separation(self.neighb_positions_repulsion_pred[b_index],self.boid_list[b_index].position,self.c_s_pred)
             else:
                 Sp = np.zeros(2)
-            A = b.alignment(b_index, self.neighb_velocities[b_index], self.boid_list[b_index].velocity, self.c_a)
+            A = b.alignment(self.neighb_velocities[b_index], self.boid_list[b_index].velocity, self.c_a)
             new_velocity.append(b.velocity + self.dt * (C + S + A + Sp))
         for b, new_v in zip(self.boid_list, new_velocity):
             if np.linalg.norm(new_v) > 5:
@@ -367,79 +379,66 @@ class Flock:
                 b.velocity = new_v
 
     def one_step_move_predator(self):
-        '''
-        Docstring for one_step_move_predator
-        
-        :param self: Description
-        '''
+        """
+        Move the predators based on their velocity using move_flyer.
+        Compute the velocity of the predators based on their neighbours and previous velocity by calculating their coherence toward boids and separation between each other.
+        If the predators have eaten, their speed is greatly reduced.
+        Limit the maximum acceleration and maximum speed of the predators.
+
+        """
         for p in self.predator_list:
             p.move_flyer(dt=self.dt)
 
         self.get_all_neighbours()
         new_velocity = []
         for b_index, p in enumerate(self.predator_list):
-            # compute coherence only if there are boids in sight. Added to avoid NaN errors and predator staying stuck out of the screen with NaN velocity.
+            # Compute coherence only if there are boids in sight. Added to avoid NaN errors and predator staying stuck out of the screen with NaN velocity.
             if len(self.neighb_positions_pred[b_index]) > 0:
-                C = p.coherence(b_index, self.neighb_positions_pred[b_index], p.position, self.c_c*2)
+                C = p.coherence(self.neighb_positions_pred[b_index], p.position, self.c_c*2)
             else:
                 C = np.zeros(2)
-            # compute separation from other predators so that they don't stack and stay less in the same place
+            # Compute separation from other predators so that they don't stack and stay less in the same place.
             if len(self.neighb_positions_pred_pred[b_index]) > 0:
-                S = p.separation(b_index, self.neighb_positions_pred_pred[b_index], p.position, self.c_s)
+                S = p.separation(self.neighb_positions_pred_pred[b_index], p.position, self.c_s)
             else:
                 S = np.zeros(2)
             new_velocity.append(p.velocity + self.dt * (C + S))
         
         for p, new_v in zip(self.predator_list, new_velocity):
 
-            # limit the speed of the predator depending on whether it has eaten or not
+            # Limit the speed of the predator depending on whether it has eaten or not.
             if p.eaten==True:
                 max_speed = 1
             else:
                 max_speed = 8
 
-            # limit the acceleration of the predator, looks more "realistic"
+            # Limit the acceleration of the predator, looks more "realistic".
             if np.linalg.norm(new_v - p.velocity) > 1:
                 new_v = p.velocity + (new_v - p.velocity) / np.linalg.norm(new_v - p.velocity) * 2
 
-            # limit the speed of the predator
+            # Limit the speed of the predator.
             if np.linalg.norm(new_v) > max_speed:
                 p.velocity = (new_v / np.linalg.norm(new_v)) * max_speed
             else:
                 p.velocity = new_v
 
+
     def __init__(self, nb_boids=100, nb_predators=2, c_c=.001, c_s=.01, c_s_pred=5, c_a=.01, r=100, r_repulsion=20, r_pred = 200, score=0, dt = 1.5, seed=np.random.randint(0, 10000)):
-        '''
-        Docstring for __init__
-        
-        :param self: Description
-        :param nb_boids: Description
-        :param nb_predators: Description
-        :param c_c: Description
-        :param c_s: Description
-        :param c_s_pred: Description
-        :param c_a: Description
-        :param r: Description
-        :param r_repulsion: Description
-        :param r_pred: Description
-        :param score: Description
-        :param dt: Description
-        :param seed: Description
-        '''
+
+        # Set the seed used for the simulation.
         np.random.seed(seed)
         
-        # Create boid and predator lists
+        # Create boid and predator lists.
         self.boid_list = [
             Bird(500 + np.random.rand(2) * 100 - 50, 2*np.random.rand(2)-1)
             for _ in range(nb_boids)
         ]
 
         self.predator_list = [
-            # predators start at the edges
             Predator(np.random.rand(2) * np.array([1200, 700]), 2*np.random.rand(2)-1) for _ in range(nb_predators)
         ]
 
-        # Flocking parameters
+        # Flocking parameters.
         self.c_c = c_c
         self.c_s = c_s
         self.c_s_pred = c_s_pred

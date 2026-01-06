@@ -3,10 +3,6 @@ import matplotlib.pyplot as plt
 
 class Flyer:
 
-    # Because the acceleration is a function of the velocity,
-    # it is not needed as an argument to the constructor anymore
-
-    # The acceleration is now a property
     @property
     def acceleration(self):
         if not hasattr(self, "_acceleration"):

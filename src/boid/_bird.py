@@ -3,51 +3,43 @@ import numpy as np
 
 class Bird(Flyer):
         
-    def coherence(self, b_index, neighb_positions, b_position, c_c):
-        '''
-        Docstring for coherence
-        
-        :param self: Description
-        :param b_index: Description
-        :param neighb_positions: Description
-        :param b_position: Description
-        :param c_c: Description
-        '''
+    def coherence(self, neighb_positions, b_position, c_c):
+        """
+        Compute the coherence of the boid based on the position of its neighbours and its own 
+
+        Args:
+            b_index: Index specific to each boid
+            neighb_positions: The positions of the neighbours of the boid
+            b_position : The position of the boid
+            c_c: coefficient of coherence (it's "strenght")
+        """
         return (np.mean(neighb_positions, axis=0) - b_position) * c_c
 
-    def separation(self, b_index, neighb_positions, b_position, c_s):
-        '''
-        Docstring for separation
-        
-        :param self: Description
-        :param b_index: Description
-        :param neighb_positions: Description
-        :param b_position: Description
-        :param c_s: Description
-        '''
+    def separation(self, neighb_positions, b_position, c_s):
+        """
+        Compute the separation of the boid based on the position of its neighbours and its own 
+
+        Args:
+            b_index: Index specific to each boid
+            neighb_positions: The positions of the neighbours of the boid
+            b_position : The position of the boid
+            c_s: coefficient of separation (it's "strenght")
+        """
         return -c_s * np.sum(neighb_positions - b_position, axis=0)
     
-    def alignment(self, b_index, neighb_velocities, b_velocity, c_a):
-        '''
-        Docstring for alignment
-        
-        :param self: Description
-        :param b_index: Description
-        :param neighb_velocities: Description
-        :param b_velocity: Description
-        :param c_a: Description
-        '''
+    def alignment(self, neighb_velocities, b_velocity, c_a):
+        """
+        Compute the alignment of the boid based on the position of its neighbours and its own 
+
+        Args:
+            b_index: Index specific to each boid
+            neighb_positions: The positions of the neighbours of the boid
+            b_position : The position of the boid
+            c_a: coefficient of alignment (it's "strenght")
+        """
         return c_a * (np.mean(neighb_velocities, axis=0) - b_velocity)
 
     def __init__(self, p, v, dt=0.1) -> None:
-        '''
-        Docstring for __init__
-        
-        :param self: Description
-        :param p: Description
-        :param v: Description
-        :param dt: Description
-        '''
         super().__init__(p, v, dt=0.1)
         print("In Bird")
 

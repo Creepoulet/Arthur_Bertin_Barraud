@@ -3,41 +3,31 @@ import numpy as np
 
 class Predator(Flyer):
         
-    def coherence(self, b_index, neighb_positions, b_position, c_c):
-        '''
-        Docstring for coherence
-        
-        :param self: Description
-        :param b_index: Description
-        :param neighb_positions: Description
-        :param b_position: Description
-        :param c_c: Description
-        '''
+    def coherence(self, neighb_positions, b_position, c_c):
+        """
+        Compute the coherence of the predator based on the position of its neighbours and its own
+
+        Args:
+            b_index: Index specific to each boid
+            neighb_positions: The positions of the neighbours of the boid
+            b_position : The position of the boid
+            c_c: coefficient of coherence (it's "strenght")
+        """
         return (np.mean(neighb_positions, axis=0) - b_position) * c_c
     
-    def separation(self, b_index, neighb_positions, b_position, c_s, ):
-        '''
-        Docstring for separation
-        
-        :param self: Description
-        :param b_index: Description
-        :param neighb_positions: Description
-        :param b_position: Description
-        :param c_s: Description
-        '''
+    def separation(self, neighb_positions, b_position, c_s, ):
+        """
+        Compute the separation of the predator based on the position of its neighbours and its own 
+
+        Args:
+            b_index: Index specific to each boid
+            neighb_positions: The positions of the neighbours of the boid
+            b_position : The position of the boid
+            c_s: coefficient of separation (it's "strenght")
+        """
         return -c_s * np.sum(neighb_positions - b_position, axis=0)
 
     def __init__(self, p, v, dt=0.1, eaten=False, cooldown=0) -> None:
-        '''
-        Docstring for __init__
-        
-        :param self: Description
-        :param p: Description
-        :param v: Description
-        :param dt: Description
-        :param eaten: Description
-        :param cooldown: Description
-        '''
         super().__init__(p, v, dt=0.1)
         self.eaten = eaten
         self.cooldown = cooldown
