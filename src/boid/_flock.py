@@ -8,7 +8,7 @@ import pygame
 
 class Flock:
 
-    def show_flock(self, step=1):
+    def show_flock(self, step:int=1) -> None:
         '''
         Display the moving flock using pygame based on the move_flock function.
         Manage the predators eating the boids when being close enough along with the cooldown between each "boid eating".
@@ -40,7 +40,7 @@ class Flock:
         font_welcome = pygame.font.SysFont("calibri", 200, bold=True)
         font_end = pygame.font.SysFont("calibri", 100, bold=True)
 
-        def load_resize_image(path):
+        def load_resize_image(path : str) -> pygame.Surface:
             '''
             Load a resize an image using its path and dividing its dimensions by 3.
             
@@ -282,7 +282,7 @@ class Flock:
             pygame.time.Clock().tick(60)
         pygame.quit()
 
-    def move_flock(self, n=1): 
+    def move_flock(self, n:int=1): 
         '''
         Move all the boids
         
@@ -293,8 +293,7 @@ class Flock:
             self.one_step_move_boid()
             self.one_step_move_predator()
 
-    
-    def find_neighbourhood(self, positions, r=None):
+    def find_neighbourhood(self, positions:np.ndarray, r=None) -> list[list[int]]:
         '''
         Compute the neighbours of a bird or predator based on its position and radius around it.
         
@@ -423,7 +422,7 @@ class Flock:
                 p.velocity = new_v
 
 
-    def __init__(self, nb_boids=100, nb_predators=2, c_c=.001, c_s=.01, c_s_pred=5, c_a=.01, r=100, r_repulsion=20, r_pred = 200, score=0, dt = 1.5, seed=np.random.randint(0, 10000)):
+    def __init__(self, nb_boids:int=100, nb_predators:int=2, c_c:float=.001, c_s:float=.01, c_s_pred:float=5, c_a:float=.01, r:int=100, r_repulsion:int=20, r_pred:int=200, score:int=0, dt:float=1.5, seed:int=np.random.randint(0, 10000)) -> None:
 
         # Set the seed used for the simulation.
         np.random.seed(seed)

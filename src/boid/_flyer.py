@@ -55,7 +55,7 @@ class Flyer:
         ...
 
 
-    def __init__(self, p, v, dt=0.1) -> None:
+    def __init__(self, p:np.ndarray, v:np.ndarray, dt:float=0.1) -> None:
         self.position = np.array(p, dtype=float)
         self.velocity = np.array(v, dtype=float)
         print("In Flyer")
