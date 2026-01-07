@@ -191,7 +191,6 @@ class Flock:
                 pygame.draw.polygon(screen, white, [A, B, C])
 
             current_time = pygame.time.get_ticks() + pause_time # current time adjusted for pauses
-            img_to_remove = []
 
             # Display eat images with fading effect
             for i, (img, pos, start_time, duration) in enumerate(self.eat_image):
@@ -206,14 +205,11 @@ class Flock:
                     img.set_alpha(alpha)
                     screen.blit(img, pos)
                 else:
-                    img_to_remove.append(i) # mark image for removal
+                    del self.eat_image[i] # delete the image when its duration is over
 
-            # Remove images that have finished displaying
-            for i in sorted(img_to_remove, reverse=True):
-                del self.eat_image[i]
             
             # Display number of boids that have been eaten, the cooldown of each predator, and the escape message.
-            score_text = font.render(f"Birds predated: {self.score}", True, white)
+            score_text = font.render(f"Birds predated: {self.score} / {self.nb_boids}", True, white)
             screen.blit(score_text, (10, 10))
             for p_index, p in enumerate(self.predator_list):
                 if p.eaten:
@@ -438,6 +434,7 @@ class Flock:
         ]
 
         # Flocking parameters.
+        self.nb_boids = nb_boids
         self.c_c = c_c
         self.c_s = c_s
         self.c_s_pred = c_s_pred

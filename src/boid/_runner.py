@@ -85,27 +85,28 @@ def run_test():
 
 def run():
     '''
-    Docstring for run
+    Create input dialogs windows to enter the number of bird, predator and the seed wanted for the simulation.
+    Then run the simulation by creating and object with the Flock class and calling its show_flock() function, using the chosed parameters.
     '''
 
     # Custom Tkinter appearance
     customtkinter.set_appearance_mode("dark")
     customtkinter.set_default_color_theme("dark-blue")
 
-    # Input dialogs for number of birds and predators
-    dialog = customtkinter.CTkInputDialog(text="Enter number of birds :", title="Input")
+    # Input dialogs for number of birds, predators and the seed
+    dialog = customtkinter.CTkInputDialog(text="Enter number of birds (int>0):", title="Input")
     num_birds = int(dialog.get_input())
     if not isinstance(num_birds, int) or num_birds <= 0:
-        raise ValueError("Number of birds must be a positive integer.")
+        raise ValueError("Number of bird must be a positive integer.")
     
-    dialog2 = customtkinter.CTkInputDialog(text=f"Number of birds : {num_birds}\n Enter number of predators :", title="Input")
+    dialog2 = customtkinter.CTkInputDialog(text=f"Number of birds : {num_birds}\n Enter number of predators (int>=0):", title="Input")
     num_predators = int(dialog2.get_input())
     if not isinstance(num_predators, int) or num_birds < 0:
-        raise ValueError("Number of birds must be a positive integer or 0.")
+        raise ValueError("Number of predator must be a positive integer or 0.")
     
     dialog3 = customtkinter.CTkInputDialog(text=f"Number of birds : {num_birds}\n Number of predators : {num_predators} \n Set a seed (Int/0/'Random')", title="Input")
     set_seed = dialog3.get_input()
-    # check if set seed is an int or random
+    # Check if set seed is an int, 0 or "random"
     if set_seed.lower() == "random":
         set_seed = np.random.randint(0, 10000)
     elif set_seed == "0":
@@ -116,5 +117,6 @@ def run():
         except ValueError:
             raise ValueError("Seed must be a positive integer, 0 or 'Random'.")
 
+    # Creates an object with the class Flock and call its function show_flock() to run display the simulation
     flock = Flock(num_birds, num_predators, seed = set_seed)
     flock.show_flock()
