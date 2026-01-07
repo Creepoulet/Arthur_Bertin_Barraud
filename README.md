@@ -1,3 +1,27 @@
+# For information, in case of problem : 
+
+## Python version :
+- 3.9.13
+
+## Modules : 
+- numpy
+- matplotlib
+- scipy
+- pygame
+- customtkinter
+
+The pyproject.toml is set for python 3.9.13, but it is due to a dumb mistake I made at the begining of the project and 3.13.9 should work too.
+
+It sould work fine as it is, but it's a shame it's not in the latest version possible.
+
+I just cannot test it as my computer refuse to cooperate with different version of python
+
+
+
+
+
+
+
 # Final project for CMB M2 students (2024/2025) <!-- omit in toc -->
 
 This is the template repository for the 2024-2025 CMB Advanced Programming class.
