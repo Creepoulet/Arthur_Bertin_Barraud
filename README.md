@@ -12,9 +12,10 @@
 
 The pyproject.toml is set for python 3.9.13, but it is due to a dumb mistake I made at the begining of the project and 3.13.9 should work too.
 
+I just cannot test it as my computer refuse to cooperate with different version of python
+
 It sould work fine as it is, but it's a shame it's not in the latest version possible.
 
-I just cannot test it as my computer refuse to cooperate with different version of python
 
 
 
